@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  database:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: tododb
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - todo-net
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  backend:
+    image: vrak45/todo-backend:1.0
+    ports:
+      - target: 5000
+        published: 5000
+        mode: host
+    environment:
+      DB_HOST: database
+      DB_USER: root
+      DB_PASSWORD: rootpassword
+      DB_NAME: tododb
+    networks:
+      - todo-net
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  frontend:
+    image: vrak45/todo-frontend:1.0
+    ports:
+      - target: 80
+        published: 80
+        mode: host
+    networks:
+      - todo-net
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+volumes:
+  db_data:
+
+networks:
+  todo-net:
+    driver: overlay

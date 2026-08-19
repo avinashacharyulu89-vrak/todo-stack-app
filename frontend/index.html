@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>3-Tier Todo App</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 500px; margin: 40px auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+    h2 { text-align: center; color: #333; }
+    .input-group { display: flex; gap: 8px; margin-bottom: 20px; }
+    input[type="text"] { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
+    button { padding: 10px 15px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+    button:hover { background: #0056b3; }
+    ul { list-style: none; padding: 0; }
+    li { padding: 10px; background: #f9f9f9; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; }
+  </style>
+</head>
+<body>
+  <h2>3-Tier Todo List (Docker Stack)</h2>
+  
+  <div class="input-group">
+    <input type="text" id="taskInput" placeholder="Enter a new task..." />
+    <button onclick="addTodo()">Add Task</button>
+  </div>
+
+  <ul id="todoList"></ul>
+
+  <script>
+    const API_URL = 'http://43.205.91.198:5000/api/todos';
+
+    function fetchTodos() {
+      fetch(API_URL)
+        .then(res => res.json())
+        .then(todos => {
+          const list = document.getElementById('todoList');
+          list.innerHTML = '';
+          todos.forEach(item => {
+            const li = document.createElement('li');
+            li.textContent = item.task;
+            list.appendChild(li);
+          });
+        })
+        .catch(err => console.error('Error loading todos:', err));
+    }
+
+    function addTodo() {
+      const input = document.getElementById('taskInput');
+      const task = input.value.trim();
+      if (!task) return;
+
+      fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ task })
+      })
+      .then(res => res.json())
+      .then(() => {
+        input.value = '';
+        fetchTodos();
+      })
+      .catch(err => console.error('Error adding todo:', err));
+    }
+
+    // Load initial tasks on page open
+    fetchTodos();
+  </script>
+</body>
+</html>
