@@ -38,7 +38,7 @@ services:
         condition: on-failure
 
   frontend:
-    image: vrak45/todo-frontend:1.0
+    image: vrak45/todo-frontend:2.0
     ports:
       - target: 80
         published: 80
