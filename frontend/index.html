@@ -203,7 +203,7 @@
 
   <div class="container">
     <div class="header">
-      <span class="badge">Docker Stack • MySQL Tier</span>
+      <span class="badge">Docker Swarm Cluster • MySQL Tier</span>
       <h1>Task Dashboard</h1>
       <p class="subtitle">Distributed Full-Stack Todo App</p>
     </div>
@@ -224,7 +224,8 @@
   </div>
 
   <script>
-    const API_URL = 'http://13.235.56.86:5000/api/todos';
+    // Dynamically binds to whatever node IP or domain is in the browser URL
+    const API_URL = `http://${window.location.hostname}:5000/api/todos`;
 
     function formatDate(dateStr) {
       if (!dateStr) return '';
