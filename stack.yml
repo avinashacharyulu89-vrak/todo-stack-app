@@ -1,54 +1,296 @@
-version: '3.8'
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cloud Tasks | Docker Stack 3-Tier</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --item-bg: #334155;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: #475569;
+      --accent: #38bdf8;
+      --danger: #ef4444;
+      --success: #10b981;
+    }
 
-services:
-  database:
-    image: mysql:8.0
-    environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: tododb
-    volumes:
-      - db_data:/var/lib/mysql
-    networks:
-      - todo-net
-    deploy:
-      replicas: 1
-      restart_policy:
-        condition: on-failure
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+    }
 
-  backend:
-    image: vrak45/todo-backend:1.0
-    ports:
-      - target: 5000
-        published: 5000
-        mode: host
-    environment:
-      DB_HOST: database
-      DB_USER: root
-      DB_PASSWORD: rootpassword
-      DB_NAME: tododb
-    networks:
-      - todo-net
-    deploy:
-      replicas: 1
-      restart_policy:
-        condition: on-failure
+    body {
+      background: radial-gradient(circle at top, #1e1b4b 0%, var(--bg) 100%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
 
-  frontend:
-    image: vrak45/todo-frontend:1.0
-    ports:
-      - target: 80
-        published: 80
-        mode: host
-    networks:
-      - todo-net
-    deploy:
-      replicas: 1
-      restart_policy:
-        condition: on-failure
+    .container {
+      width: 100%;
+      max-width: 540px;
+      background: var(--card-bg);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 32px;
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(8px);
+    }
 
-volumes:
-  db_data:
+    .header {
+      margin-bottom: 24px;
+    }
 
-networks:
-  todo-net:
-    driver: overlay
+    .badge {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--accent);
+      background: rgba(56, 189, 248, 0.1);
+      padding: 4px 10px;
+      border-radius: 999px;
+      margin-bottom: 8px;
+      border: 1px solid rgba(56, 189, 248, 0.2);
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .subtitle {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .input-form {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+
+    .input-form input {
+      flex: 1;
+      padding: 12px 16px;
+      background: #0f172a;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 0.95rem;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .input-form input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.25);
+    }
+
+    .input-form button {
+      padding: 12px 20px;
+      background: var(--primary);
+      color: white;
+      font-weight: 600;
+      font-size: 0.95rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .input-form button:hover {
+      background: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+
+    .status-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .todo-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 380px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .todo-list::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .todo-list::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 3px;
+    }
+
+    .todo-item {
+      background: var(--item-bg);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      animation: fadeIn 0.3s ease;
+      transition: background 0.2s;
+    }
+
+    .todo-item:hover {
+      background: #3e4f69;
+    }
+
+    .todo-content {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .todo-title {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .todo-meta {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 36px 12px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="header">
+      <span class="badge">Docker Swarm Cluster • MySQL Tier</span>
+      <h1>Task Dashboard</h1>
+      <p class="subtitle">Distributed Full-Stack Todo App</p>
+    </div>
+
+    <form class="input-form" onsubmit="event.preventDefault(); addTodo();">
+      <input type="text" id="taskInput" placeholder="What needs to be done?" required autocomplete="off" />
+      <button type="submit">
+        <span>Add</span>
+      </button>
+    </form>
+
+    <div class="status-bar">
+      <span id="taskCount">0 tasks stored</span>
+      <span id="syncStatus">● Connected to MySQL</span>
+    </div>
+
+    <ul class="todo-list" id="todoList"></ul>
+  </div>
+
+  <script>
+    // Dynamically binds to whatever node IP or domain is in the browser URL
+    const API_URL = `http://${window.location.hostname}:5000/api/todos`;
+
+    function formatDate(dateStr) {
+      if (!dateStr) return '';
+      const d = new Date(dateStr);
+      return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ', ' + d.toLocaleDateString();
+    }
+
+    function fetchTodos() {
+      fetch(API_URL)
+        .then(res => {
+          if (!res.ok) throw new Error('Network error');
+          return res.json();
+        })
+        .then(todos => {
+          const list = document.getElementById('todoList');
+          const count = document.getElementById('taskCount');
+          list.innerHTML = '';
+          count.textContent = `${todos.length} task${todos.length === 1 ? '' : 's'} stored`;
+
+          if (todos.length === 0) {
+            list.innerHTML = '<div class="empty-state">No tasks in MySQL yet. Add one above!</div>';
+            return;
+          }
+
+          todos.forEach(item => {
+            const li = document.createElement('li');
+            li.className = 'todo-item';
+            li.innerHTML = `
+              <div class="todo-content">
+                <span class="todo-title">${item.task}</span>
+                <span class="todo-meta">ID #${item.id} • ${formatDate(item.created_at)}</span>
+              </div>
+            `;
+            list.appendChild(li);
+          });
+        })
+        .catch(err => {
+          console.error('Error loading todos:', err);
+          document.getElementById('syncStatus').textContent = '○ Disconnected';
+          document.getElementById('syncStatus').style.color = '#ef4444';
+        });
+    }
+
+    function addTodo() {
+      const input = document.getElementById('taskInput');
+      const task = input.value.trim();
+      if (!task) return;
+
+      fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ task })
+      })
+      .then(res => {
+        if (!res.ok) throw new Error('Insert failed');
+        return res.json();
+      })
+      .then(() => {
+        input.value = '';
+        fetchTodos();
+      })
+      .catch(err => alert('Failed to save task to backend: ' + err.message));
+    }
+
+    fetchTodos();
+  </script>
+</body>
+</html>
