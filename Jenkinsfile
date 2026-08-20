@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         DOCKER_USER     = 'vrak45'
-        FRONTEND_IMAGE  = 'vrak45/todo-frontend:1.0'
+        FRONTEND_IMAGE  = 'vrak45/todo-frontend:2.0'
         BACKEND_IMAGE   = 'vrak45/todo-backend:1.0'
     }
 
