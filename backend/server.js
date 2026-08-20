@@ -12,7 +12,10 @@ const db = mysql.createPool({
   password: process.env.DB_PASSWORD || 'rootpassword',
   database: process.env.DB_NAME || 'tododb',
   waitForConnections: true,
-  connectionLimit: 10
+  connectionLimit: 10,
+  queueLimit: 0,
+  enableKeepAlive: true,
+  keepAliveInitialDelay: 10000
 });
 
 // Auto-create table on startup with retry loop
